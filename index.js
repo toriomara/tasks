@@ -68,3 +68,51 @@ function flattenArrayDeep(arr) {}
 // Пример использования:
 console.log(flattenArrayDeep([1, [2, [3, 4]], 5])); // [1, 2, 3, 4, 5]
 console.log(flattenArrayDeep([1, [2, 3], [4, [5, 6]]])); // [1, 2, 3, 4, 5, 6]
+
+
+// 8 Напишите функцию groupAnagrams, которая принимает массив строк 
+// и группирует строки, состоящие из одинакового набора букв
+// уникальность букв должна учитываться, а регистр игнорироваться
+const arrOfChar = ["eat", "teA", "tan", "ate", "nat", "bat", "batT", "taan"]
+// -> [["eat", "teA", "ate"], ["tan", "nat", "taan"], ["bat", "batT"]]
+
+function groupAnagrams(arr) {
+    const result = new Map();
+
+    arr.forEach((current) => {
+        const uniqueSym = [...new Set(current.toLowerCase())]
+
+        const key = uniqueSym.sort().join('')
+
+        if (!result.has(key)) {
+            result.set(key, [])
+        }
+        result.get(key).push(current)
+    })
+
+    return [...result.values(result)]
+}
+
+console.log(groupAnagrams(arrOfChar));
+
+// 9 Реализовать собственный метод reduce
+
+const numbers = [1, 4, 2];
+const letters = ['r', 't', 'c'];
+
+Array.prototype.reduceFunc = function (cb, initialValue) {
+    const hasInitialValue = arguments.length === 2;
+
+    let acc = hasInitialValue ? initialValue : this[0];
+    let startIndex = hasInitialValue ? 0 : 1
+
+    for (let i = startIndex; i < this.length; i++) {
+        acc = cb(acc, this[i], i, this);
+    }
+
+    return acc
+} 
+
+console.log(numbers.reduceFunc((acc, curr) => acc + curr, 0)) // 7
+console.log(numbers.reduceFunc((acc, curr) => acc - curr, 10)) // 3
+console.log(letters.reduceFunc((acc, curr) => acc + curr)) // 3
