@@ -78,22 +78,32 @@ const arrOfChar = ["eat", "teA", "tan", "ate", "nat", "bat", "batT", "taan"]
 
 function groupAnagrams(arr) {
     const result = new Map();
-
     arr.forEach((current) => {
         const uniqueSym = [...new Set(current.toLowerCase())]
-
         const key = uniqueSym.sort().join('')
-
         if (!result.has(key)) {
             result.set(key, [])
         }
         result.get(key).push(current)
     })
-
     return [...result.values(result)]
 }
-
 console.log(groupAnagrams(arrOfChar));
+
+// OR 
+
+function groupAnagrams(arr) {
+    const result = {};
+    arr.forEach((current) => {
+        const uniqueSym = [...new Set(current.toLowerCase())]
+        const key = uniqueSym.sort().join('')
+        if (!result[key]) {
+            result[key] = []
+        }
+        result[key].push(current)
+    })
+    return Object.values(result)
+}
 
 // 9 Реализовать собственный метод reduce
 
@@ -116,3 +126,4 @@ Array.prototype.reduceFunc = function (cb, initialValue) {
 console.log(numbers.reduceFunc((acc, curr) => acc + curr, 0)) // 7
 console.log(numbers.reduceFunc((acc, curr) => acc - curr, 10)) // 3
 console.log(letters.reduceFunc((acc, curr) => acc + curr)) // 3
+
