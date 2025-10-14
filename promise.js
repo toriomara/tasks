@@ -273,3 +273,156 @@ myPromiseAll([promise1(), promise2(), 5])
 //         allIds: ["u123", "u456"]
 //     }
 // }
+
+// Изначально пишем через then,
+// затем переписываем на async/await
+
+// Промисы
+// 1) Создай функцию wait(ms), которая возвращает промис, резолвящийся через ms миллисекунд.
+
+// function fetchUserData(ms) {
+//     let arr = [{ user: 1 }, { user: 2 }];
+    
+//     return new Promise(resolve => setTimeout(() => resolve(arr)), ms)
+// }
+
+
+// fetchUserData(2000).then(console.log);
+
+// async function newFunc() {
+//     let res = await fetchUserData(2000);
+//     console.log('res: ', res )
+// }
+
+// newFunc();
+
+// .then .catch .finally // Promise
+// try {} catch() finally{} // async/await
+
+
+
+// 2) Последовательные запросы
+// Сделай так, чтобы запросы выполнялись последовательно: ( не параллельно )  1 → 2 → 3
+// и результат выводился по очереди. ( пока нету прошлого, новый результат не появится)
+
+function getData(id) {
+    return Promise.resolve(`Данные для id=${id}`)   
+}
+
+getData('текст 1')
+    .then(val => {
+        console.log(val)
+
+        // Изначально пишем через then,
+        // затем переписываем на async/await
+
+        // .then((value) => console.log(value))
+
+        //  const value = await fetchUserData(2000);
+
+        //  console.log(value)
+
+
+
+
+        // return getData('текст 2')
+    })
+    .then(val => {
+        console.log(val)
+        return getData('текст 3')})
+    .then(val => console.log(val))
+
+
+
+
+
+// 3) Обработка ошибок
+// Функция getUser иногда возвращает ошибку.
+// Задача — вызвать getUser(1) и корректно обработать ошибку:
+
+// function getUser(id: number) {
+//     return new Promise((resolve, reject) => {
+//         if (Math.random() > 0.5) resolve({id, name: 'User'});
+//         else reject(new Error('Ошибка загрузки'));
+//     });
+// }
+
+
+
+
+
+// 4) Параллельные запросы
+// Вызови три загрузки параллельно (/a, /b, /c) и выведи результат всех:
+
+// function load(url: string) {
+//     return Promise.resolve(`Загружено: ${url}`);
+// }
+
+
+
+
+
+// 5) Цепочка зависимых вызовов
+// Нужно:
+// Получить пользователя
+// Затем посты этого пользователя
+// Вывести оба результата
+// Реализуй цепочку и её async/await версию.
+
+// function getUser(id: number) {
+//     return Promise.resolve({id, name: 'User'});
+// }
+
+// function getPosts(userId: number) {
+//     return Promise.resolve([ `Post of ${userId}` ]);
+// }
+
+
+
+
+
+
+// 6) Последовательно + параллельно
+// Сначала нужно загрузить пользователя,
+// а потом параллельно ( не последовательно ) загрузить посты и комментарии.
+// Выведи всё в виде объекта:
+// { user, posts, comments }
+
+
+// function fetchUser() {
+//     return Promise.resolve('user');
+// }
+
+// function fetchPosts() {
+//     return Promise.resolve(['post1', 'post2']);
+// }
+
+// function fetchComments() {
+//     return Promise.resolve(['comment1', 'comment2']);
+// }
+
+
+
+
+
+// 7) Последовательный retry
+// Напиши функцию fetchWithRetry(fn, retries),
+// которая вызывает асинхронную функцию fn() и, если она упала, пробует ещё retries раз.
+// Реализуй и в промисах, и в async/await.
+
+// function unstableFetch() {
+//     return new Promise((resolve, reject) => {
+//         const success = Math.random() > 0.7;
+//         setTimeout(() => {
+//             if (success) resolve('Успех!');
+//             else reject(new Error('Случайная ошибка'));
+//         }, 300);
+//     });
+// }
+
+// const fetchWithRetry = () => { }
+
+
+
+
+
