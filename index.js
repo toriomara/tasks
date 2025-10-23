@@ -127,3 +127,20 @@ console.log(numbers.reduceFunc((acc, curr) => acc + curr, 0)) // 7
 console.log(numbers.reduceFunc((acc, curr) => acc - curr, 10)) // 3
 console.log(letters.reduceFunc((acc, curr) => acc + curr)) // 3
 
+// 10. Релизуйте функцию myMap точно копирующую map метод
+
+const arr = [1, 2, 3, 4, 5];
+
+Array.prototype.myMap = function(cb) {
+    if (!this.length) return;
+    const res = [];
+
+    for (let i = 0; i < this.length; i++) {
+        res.push(cb(this[i]));
+    }
+    return res;
+}
+
+const mappedArr = arr.myMap((x) => x * 2);
+
+console.log(mappedArr); //[2, 4, 6, 8, 10]
