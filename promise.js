@@ -610,7 +610,141 @@ function test(results) {
 
 parallelLimit(links, 3, test);
 
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
 
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => {
+    console.log(i);
+    }, 1000);
+  })
+}
 
+// for (var i = 0; i < 3; i++) {
+//   (function (currentI) {
+//     setTimeout(() => {
+//       console.log(currentI);
+//     }, 1000);
+//   })(i)
+// }
 
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
 
+console.log('Start');
+
+Promise.resolve()
+    .then(() => {
+        console.log('Promise 1');
+        Promise.resolve()
+            .then(() => console.log('Nested Promise'));
+    })
+    .then(() => console.log('Promise 2'));
+
+console.log('End');
+
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
+
+async function test() {
+    console.log('Async start');
+    await Promise.resolve().then(() => console.log('Microtask in await'));
+    console.log('Async end');
+}
+
+console.log('Script start');
+test();
+Promise.resolve().then(() => console.log('Standalone microtask'));
+console.log('Script end');
+
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
+
+// Что выведет консоль и в каком порядке?
+console.log(1);
+const promise = new Promise((resolve) => {
+  console.log(2);
+  resolve();
+  console.log(3);
+});
+console.log(4);
+promise.then(() => console.log(5)).then(() => console.log(6));
+console.log(7);
+setTimeout(() => console.log(8), 10);
+setTimeout(() => console.log(9), 0);
+
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
+
+// Что выведет консоль?
+const p = new Promise((resolve) => {
+  resolve(console.log('A'));
+});
+setTimeout(() => console.log('B'), 0);
+p.then(() => console.log('C'));
+Promise.resolve(console.log('D'));
+console.log('E');
+
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
+
+// Что выведет консоль?
+Promise.resolve()
+  .then(() => console.log(1)) // q
+  .then(() => console.log(2)); // q
+queueMicrotask(() => console.log(3));
+setTimeout(() => console.log(4), 0);
+console.log(5);
+new Promise(() => console.log(6)); // q?
+(async () => console.log(7))();
+
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
+
+// Что выведет консоль? 
+Promise.resolve(1)
+  .then((v) => {
+    console.log(v); // q
+    return v * 2; // q2
+  })
+  .then((v) => {
+    console.log(v);
+    throw new Error('oops');
+  })
+  .catch((e) => {
+    console.log(e.message);
+    return 10;
+  })
+  .then((v) => console.log(v));
+
+// // Найти проблему: код должен выполнить асинхронные операции ПОСЛЕДОВАТЕЛЬНО
+// // (каждая следующая — после завершения предыдущей), но map с async не даёт такого эффекта.
+// // Как переписать через reduce, чтобы гарантировать строгую последовательность?
+
+const arr = [1, 2, 3];
+const arr1 = [1, 2, 3];
+
+function delayedLog(num) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(num);
+      resolve();
+    }, 3000);
+  });
+}
+
+// // arr.map((num) => delayedLog(num));
+
+// arr1.reduce(async (acc, current) => {
+//   await acc;
+//   setTimeout(() => {
+//     console.log(current)
+//   }, 2000)
+// }, Promise.resolve())
