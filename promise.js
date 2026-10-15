@@ -822,3 +822,47 @@ function delayedLog(num) {
 //     console.log(current)
 //   }, 2000)
 // }, Promise.resolve())
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
+
+export function task2() {
+  const tree = {
+    value: 1,
+    children: [
+      {
+        value: 2,
+        children: [{ value: 3 }],
+      },
+      {
+        value: 4,
+        children: [{ value: 5 }, { value: 6 }],
+      },
+    ],
+  };
+
+  function getTreeValues(tree) {
+    const result = [];
+
+    function traverse(node) {
+      if (!node) return;
+
+      result.push(node.value);          // добавляем значение текущего узла
+
+      if (node.children) {              // если есть дети — обходим их
+        for (const child of node.children) {
+          traverse(child);
+        }
+      }
+    }
+
+    traverse(tree);
+    return result;
+  }
+
+  return getTreeValues(tree); // [1, 2, 3, 4, 5, 6]
+}
+
+////////////////////////////////////////////////////
+///////////////                      ///////////////
+////////////////////////////////////////////////////
