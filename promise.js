@@ -1124,3 +1124,218 @@ const tasks = [
 
 promisePool(tasks, 2).then(console.log);
 // ожидается: ['A', 'B', 'C', 'D']
+
+////////////////////////////////////////////////////
+// Другое решение задачи выше
+
+const tasks = [
+    () => Promise.resolve(1), // Добавил единицу для наглядности вывода
+    () => new Promise(r => setTimeout(() => r(2), 100)),
+    () => Promise.resolve(3)
+];
+
+function promisePool(tasks, limit) {
+
+    return new Promise(resolve => {
+        let index = 0;
+        let running = 0;
+        let complited = 0;
+        let results = [];
+
+        function next() {
+            if (complited === tasks.length) {
+                resolve(results)
+                return;
+            }
+
+            while (running < limit && index < tasks.length) {
+                let task = tasks[index]
+                let currentIndex = index;
+
+                index++
+
+                task()
+                    .then(result =>
+                        results[currentIndex] = result
+                    )
+                    .catch(error => {
+                        results[currentIndex] = error;
+                    })
+
+                    .finally(() => {
+                        running--;
+                        complited++;
+                        next();
+                    });
+            }
+        }
+        next()
+    })
+}
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+У вас есть массив авиабилетов, каждый из которых содержит пункт отправления (from) и пункт назначения (to).
+Известно, что билеты образуют непрерывный маршрут без разрывов (из одного города можно попасть в другой, и так далее до конечного пункта).
+
+const tickets = [
+    { from: "Moscow", to: "Paris" },
+    { from: "Paris", to: "London" },
+    { from: "Berlin", to: "Moscow" }
+];
+
+// const tickets = [
+//     { from: "Berlin", to: "Moscow" }
+//     { from: "Moscow", to: "Paris" },
+//     { from: "Paris", to: "London" },
+// ]; //верно
+
+function reconstructRoute(tickets, start) {
+    const route = new Map();
+
+    for (const city of tickets) {
+        route.set(city.from, city.to);
+    }
+
+    console.log('route ==>', route)
+
+    let result = [];
+    let current = start;
+
+
+    while (route.has(current)) { // есть ли в мапе
+        result.push(current);
+        current = route.get(current); // получаем из мапы
+        console.log("CURRENT ===>>", current)
+
+    }
+
+    result.push(current); // новый пуш чтобы получить последний город
+
+    return result;
+}
+
+console.log(reconstructRoute(tickets, "Berlin"));
+
+////////////////////////////////////////////////////
+
+// У вас есть массив авиабилетов, каждый из которых содержит пункт отправления (from) и пункт назначения (to).
+//  Известно, что билеты образуют непрерывный маршрут без разрывов (из одного города можно попасть в другой, и так далее до конечного пункта).
+// Как задача выше, но немного сложнее (без стартового города, его надо найти самостоятельно)
+
+const tickets = [
+    { from: "Moscow", to: "Paris" },
+    { from: "Paris", to: "London" },
+    { from: "Berlin", to: "Moscow" }
+];
+
+function reconstructRoute(tickets) {
+    if (!tickets || tickets.length === 0) return [];
+
+    const route = new Map();
+    const toCities = new Set();
+
+    // 1. За один проход собираем карту и все пункты назначения
+    for (const { from, to } of tickets) {
+        route.set(from, to);
+        toCities.add(to);
+    }
+
+    // 2. Ищем стартовый город: тот, из которого вылетают, но куда не прилетают
+    let current = tickets.find(t => !toCities.has(t.from))?.from;
+
+    if (!current) return []; // Защита от зацикленных маршрутов
+
+    // 3. Собираем итоговый маршрут
+    const result = [current];
+    while (route.has(current)) {
+        current = route.get(current);
+        result.push(current);
+    }
+
+    return result;
+}
+
+console.log(reconstructRoute(tickets));
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+import React, { useState, useEffect } from "react";
+
+const A = () => (<>
+    <h2>Компонент счетчик</h2>
+    <p>До рапродажи осталось</p>
+    <>01день: 3часа: 12минут: 12секунд</>
+</>)
+
+const B = () => (<>
+    <h2>Компонент баннер</h2>
+    <p>Рапродажа началась!!!</p>
+</>)
+
+const Store = () => {
+    // сегодня 15 сентября 14.07
+
+    // завтра в 16 сентября в 15:00:00 минут распродажа
+
+
+    // 01день: 3часа: 12минут: 12секунд
+    const [run, setRun] = useState(false);
+
+    // const now = new Date();
+
+    const zavtra = new Date();
+    console.log(zavtra);
+    console.log(+zavtra);
+
+    zavtra.setDate(16);
+    zavtra.setHours(15);
+    zavtra.setMinutes(0);
+    zavtra.setSeconds(0);
+// 
+    zavtra.setMilliseconds(0);
+
+    useEffect(() => {
+        if (run === true) {
+            return;
+        }
+
+        const timer = setInterval(() => {
+            const now = new Date();
+            now.setMilliseconds(0);
+
+            if (+now == +zavtra) {
+                // 700.123 == 700.865
+                // 700.0 == 700.0
+            // if (Date.now() == zavtra) {
+                setRun(true);
+            }
+        }, 1000);
+        
+        // 1900
+        // 1024
+
+        return () => {
+            clearInterval(timer);
+        }
+    }, [run]);
+
+
+
+    if (run !== true) {
+        return <A />;
+        //счетчик
+        // 01день: 3часа: 12минут: 12секунд
+    } else {
+        return <B />;
+        //баннер распродажа началась
+    }
+}
+
+export default () => <div><h1>Hello!</h1><Store /></div>
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
