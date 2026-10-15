@@ -1,4 +1,5 @@
 //https://habr.com/ru/companies/otus/articles/686670/
+
 ////////////////////////////////////////////////////
 ///////////////           1          ///////////////
 ////////////////////////////////////////////////////
@@ -151,9 +152,9 @@ const timer1 = setTimeout(() => {
 }, 0)
 
 console.log('end');
-////////////////////////////////////////////////////
-////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
 
 async function test() {
     console.log('Async start');
@@ -373,8 +374,6 @@ myPromiseAll([promise1(), promise2(), 5])
 // .then .catch .finally // Promise
 // try {} catch() finally{} // async/await
 
-
-
 // 2) Последовательные запросы
 // Сделай так, чтобы запросы выполнялись последовательно: ( не параллельно )  1 → 2 → 3
 // и результат выводился по очереди. ( пока нету прошлого, новый результат не появится)
@@ -389,25 +388,15 @@ getData('текст 1')
 
         // Изначально пишем через then,
         // затем переписываем на async/await
-
         // .then((value) => console.log(value))
-
         //  const value = await fetchUserData(2000);
-
         //  console.log(value)
-
-
-
-
         // return getData('текст 2')
     })
     .then(val => {
         console.log(val)
         return getData('текст 3')})
     .then(val => console.log(val))
-
-
-
 
 
 // 3) Обработка ошибок
@@ -421,20 +410,12 @@ getData('текст 1')
 //     });
 // }
 
-
-
-
-
 // 4) Параллельные запросы
 // Вызови три загрузки параллельно (/a, /b, /c) и выведи результат всех:
 
 // function load(url: string) {
 //     return Promise.resolve(`Загружено: ${url}`);
 // }
-
-
-
-
 
 // 5) Цепочка зависимых вызовов
 // Нужно:
@@ -450,10 +431,6 @@ getData('текст 1')
 // function getPosts(userId: number) {
 //     return Promise.resolve([ `Post of ${userId}` ]);
 // }
-
-
-
-
 
 
 // 6) Последовательно + параллельно
@@ -474,9 +451,6 @@ getData('текст 1')
 // function fetchComments() {
 //     return Promise.resolve(['comment1', 'comment2']);
 // }
-
-
-
 
 
 // 7) Последовательный retry
@@ -533,13 +507,11 @@ export function timeoutRace(promise, ms) {
 
 }
 
-
 /* Есть массив промисов, каждый из которых разрешается в числовое значение.Необходимо:
     -Дождаться выполнения всех промисов в массиве
     -Получить их результаты
     -Вычислить сумму всех полученных значений 
 */
-
 
 const promiseArray = [
     Promise.resolve(10),
@@ -626,8 +598,6 @@ console.log(
     )
 );
 
-
-
 /*
 Дан массив ссылок: ['url1', 'url2', ...] и лимит одновременных запросов (limit)
 Необходимо реализовать функцию, которая опросит урлы в том порядке, в котором они идут в массиве, и вызовет callback c массивом ответов
@@ -651,11 +621,9 @@ function parallelLimit(links, limit, callback) {
     //code
 }
 
-
 const db = { link1: '1', link2: '2', link3: '3', link7: '7' };
 const links = ['link1', 'link2', 'link1', 'link3', 'link1', 'link2', 'link2', 'link7'];
 const expected = [1, 2, 1, 3, 1, 2, 2, 7];
-
 
 // declare function fetch(url: string): Promise<string>;
 function fetch(url) {
@@ -671,7 +639,6 @@ function fetch(url) {
         setTimeout(() => resolve(response), timeout);
     });
 }
-
 
 function test(results) {
     if (!Array.isArray(results) || results.toString() !== expected.toString()) {
@@ -866,3 +833,294 @@ export function task2() {
 ////////////////////////////////////////////////////
 ///////////////                      ///////////////
 ////////////////////////////////////////////////////
+
+// Реализовать свой аналог Array.prototype.forEach
+
+// My solution
+
+// Array.prototype.myForEach = function (callback) {
+//     for (let i = 0; i < this.length; i++) {
+//         callback(this[i], i, this)
+//     }
+// }
+
+// LLM solution
+
+// Array.prototype.myForEach = function (callback, thisArg) {
+//     if (typeof callback !== 'function') {
+//         throw new TypeError(callback + ' is not a function');
+//     }
+
+//     const length = this.length;
+
+//     for (let i = 0; i < length; i++) {
+//         // Пропускаем «дыры» в разреженном массиве (как делает нативный forEach)
+//         if (i in this) {
+//             callback.call(thisArg, this[i], i, this);
+//         }
+//     }
+// };
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+// 1) Написать кастомный хук по поиску фильма по ключему слову
+// 2) Требования:
+//    Наличие initialMovies вместо null
+//    Строгая типизация
+//    Состояния: данные, загрузка, ошибка
+//    Отмена предыдущего запроса, при наличие нового
+
+// https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=keyword&page=page}
+//    keyword: string;
+//    page?: number;
+
+//  headers: {
+//    'X-API-KEY': 'f995de6f-080e-43e1-8ecd-a5eeafe2a5f5',
+//    'Content-Type': 'application/json',
+// },
+
+import { useEffect, useState } from "react";
+import { FilmsType, Film } from "./type";
+
+interface IUseMovieSearch {
+  keyword: string;
+  page?: number;
+}
+
+const headers = {
+  "X-API-KEY": "f995de6f-080e-43e1-8ecd-a5eeafe2a5f5",
+  "Content-Type": "application/json",
+};
+
+const initialMovies: FilmsType = {
+  keyword: "",
+  pagesCount: 0,
+  searchFilmsCountResult: 0,
+  films: [],
+};
+
+export const useMovieSearch = ({ keyword, page = 1 }: IUseMovieSearch) => {
+  const [movies, setMovies] = useState<FilmsType>(() => initialMovies);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    if (!keyword.trim()) {
+      setMovies(initialMovies);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const fetchSearchByKeyword = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(
+          `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(
+            keyword
+          )}&page=${page}`,
+          {
+            headers,
+            signal: controller.signal,
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed fetch data");
+        }
+
+        const data: FilmsType = await res.json();
+        setMovies(data);
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") {
+          // запрос был отменён — игнорируем
+          return;
+        }
+        if (e instanceof Error) {
+          setError(e.message);
+          console.error(e);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSearchByKeyword();
+    return () => controller.abort();
+  }, [keyword, page]);
+
+  return { movies, loading, error };
+};
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+// Массив объектов в объект
+
+function convertArrayToObject(arr) {
+  return Object.fromEntries(arr.map(item => [item.name, item.value]));
+}
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+// Поменять местами ключи и значения объекта
+
+// My solution
+
+function reverseKeyValue(dict) {
+    return Object.keys(dict).reduce((acc, current) => {
+        const newValue = dict[current];
+        acc[newValue] = current;
+        return acc;
+    }, {})
+}
+
+// LLM solution
+
+const reverseKeyValue = (dict) => Object.fromEntries(Object.entries(dict).map(([k, v]) => [v, k]));
+
+const obj = {
+  name: 'Alex',
+  age: 25,
+  city: 'Moscow'
+};
+
+console.log(reverseKeyValue(obj));
+
+// Что выведет функция в консоль?
+
+(function () {
+    function modifyItemData(price, platform, isModified) {
+        price.rub = 5000;
+        platform = 'iOS';
+        isModified = true;
+
+        function printItemData() {
+            console.log(price);
+            console.log(platform);
+             console.log(isModified);
+        }
+
+        return printItemData;
+    }
+
+    let price = { rub: 3500 };
+    let platform = 'Android';
+
+    let isModified = false;
+    const printItemData = modifyItemData(price, platform, isModified);
+
+    console.log(price);
+    console.log(platform);
+    console.log(isModified);
+
+    price = { usd: 100 };
+
+    platform = 'Web';
+    isModified = null;
+
+    printItemData();
+})()
+
+// Что выведет функция в консоль?
+
+let count = 0;
+let value = { message: 'app initialized', isLogged: false };
+
+function makeScopedLogger(count, value) {
+    function logMessage() {
+        console.log(count, value); 
+    }
+
+    count += 1;
+    console.log(count, value); 
+
+    value.isLogged = true;
+
+    return logMessage;
+}
+
+const logMessage = makeScopedLogger(count, value);
+
+value = { message: 'app run' };
+
+logMessage();
+
+console.log(count, value);
+
+// Реализуй функцию debounce(fn, delay)
+
+function debounce(fn, delay) {
+  let timerId;
+
+  return function (...args) {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+
+    timerId = setTimeout(() => {
+      return fn.apply(this, args);
+    }, delay);
+  };
+}
+
+const log = debounce((value) => {
+  console.log(value);
+}, 300);
+
+log("a");
+log("b");
+log("c");
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+Условие задачи:
+Реализуй функцию promisePool(tasks, limit).
+Описание:
+Функция принимает:
+
+tasks — массив функций, каждая из которых возвращает промис
+limit — максимальное количество промисов, которые могут выполняться одновременно
+
+Функция должна запускать выполнение задач так, чтобы в один момент времени работало не больше limit промисов. Как только один промис завершается — сразу запускается следующая задача из очереди (если она ещё есть).
+Требования:
+
+Результаты должны возвращаться в том же порядке, в котором задачи были переданы в массиве (независимо от того, в каком порядке они реально завершились).
+Нужно дождаться выполнения всех задач.
+Функция должна возвращать промис, который резолвится массивом результатов.
+
+//#####################################################//
+//#####################################################//
+
+async function promisePool(tasks, limit) {
+  const result = [];
+  let nextIndex = 0;
+
+  const worker = async () => {
+    while (nextIndex < tasks.length) {
+      const currentIndex = nextIndex++;
+
+      result[currentIndex] = await tasks[currentIndex]();
+    }
+  };
+
+  const workers = Array.from({ length: Math.min(tasks.length, limit) }, () =>
+    worker()
+  );
+
+  await Promise.all(workers);
+
+  return result;
+}
+
+const tasks = [
+  () => new Promise((r) => setTimeout(() => r("A"), 300)),
+  () => new Promise((r) => setTimeout(() => r("B"), 100)),
+  () => new Promise((r) => setTimeout(() => r("C"), 200)),
+  () => new Promise((r) => setTimeout(() => r("D"), 50)),
+];
+
+promisePool(tasks, 2).then(console.log);
+// ожидается: ['A', 'B', 'C', 'D']
