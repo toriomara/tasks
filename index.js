@@ -144,3 +144,5 @@ Array.prototype.myMap = function(cb) {
 const mappedArr = arr.myMap((x) => x * 2);
 
 console.log(mappedArr); //[2, 4, 6, 8, 10]
+
+
