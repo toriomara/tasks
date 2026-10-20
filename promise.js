@@ -352,17 +352,30 @@ myPromiseAll([promise1(), promise2(), 5])
 // Изначально пишем через then,
 // затем переписываем на async/await
 
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+
 // Промисы
 // 1) Создай функцию wait(ms), которая возвращает промис, резолвящийся через ms миллисекунд.
 
-// function fetchUserData(ms) {
-//     let arr = [{ user: 1 }, { user: 2 }];
-    
-//     return new Promise(resolve => setTimeout(() => resolve(arr)), ms)
-// }
+let arr = [{ user: 1 }, { user: 2 }];
 
+function fetchUserData(ms) {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(console.log(arr)))
+  }, ms)
+}
 
-// fetchUserData(2000).then(console.log);
+async function fetchAsync(ms) {
+  const res = await Promise.resolve(setTimeout(() => console.log(arr), ms))
+  return res;
+}
+
+// fetchUserData(2000);
+fetchAsync(5000);
+
+//////////////////////////////////////////////
+//////////////////////////////////////////////
 
 // async function newFunc() {
 //     let res = await fetchUserData(2000);
